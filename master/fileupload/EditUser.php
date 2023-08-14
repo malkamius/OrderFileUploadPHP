@@ -79,14 +79,14 @@ if($stmt = mysqli_prepare($link, $sql)){
 
 ?>
 <form method="post" action="/fileupload/EditUser.php">
-    <input type='hidden' name='id' value='<?php echo $userid; ?>'>
-    Email: <?php echo $email; ?><br>
+    <input type='hidden' name='id' value='<?php echo htmlspecialchars($userid); ?>'>
+    Email: <?php echo htmlspecialchars($email); ?><br>
     <?php
         foreach($roles as $role)
         {
             echo "<input type='checkbox' " . (($role["user_in_role"] == 1)? 'checked' : '') . 
                 " name='roles[]' value='". $role["role_id"] ."'> ";
-            echo $role["role_name"] . "<br>";
+            echo htmlspecialchars($role["role_name"]) . "<br>";
         }
     ?>
     <br>

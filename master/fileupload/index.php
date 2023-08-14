@@ -1,3 +1,118 @@
+<?php 
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/InitDBAndSMTP.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/SignInManager.php");
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Orders.php"); 
+	
+	class OrderFileUploadInformation
+    {
+        public $OrderId = 0;
+        public $FileId = 0;
+        public $FileName = "";
+        public $Length = 0;
+        public $Written = 0;
+        public $ContentType = "";
+    }
+	
+	class OrderInsertResult
+    {
+        public $OrderId = 0;
+        public $ViewOrderKey = "";
+        public $UploadFileKey = "";
+
+        public $FileInformation = array();
+    }
+	function uniqidReal($length = 13) {
+		if(function_exists("random_bytes"))
+		{
+			$bytes = random_bytes(ceil($length / 2));
+		}
+		else if(function_exists("openssl_random_pseudo_bytes"))
+		{
+			$bytes = openssl_random_pseudo_bytes(ceil($length / 2));
+		}
+		else
+		{
+			throw new Exception("Failed to generate verification token.");
+		}
+		return substr(bin2hex($bytes), 0, $length);
+	}
+	if(isset($_POST) && count($_POST) >= 15)
+	{
+		$filesinfo = json_decode($_POST['FileInformation']);
+		$result = new OrderInsertResult();
+		$order = new Order();
+		
+		$order->ContactName = $_POST["Name"];
+		$order->PhoneNumber = $_POST["PhoneNumber"];
+		$order->EmailAddress = $_POST["EmailAddress"];
+		$order->CompanyName = $_POST["CompanyName"];
+		$order->Address1 = $_POST["Address1"];
+		$order->Address2 = $_POST["Address2"];
+		$order->City = $_POST["City"];
+		$order->State = $_POST["State"];
+		$order->ZipCode = $_POST["ZipCode"];
+		$order->DueDate = $_POST["DateDue"];
+		$order->DueTime = $_POST["LatestTimeDue"];
+		$order->ProjectNumber = $_POST["ProjectNumber"];
+		$order->PurchaseOrderNumber = $_POST["PONumber"];
+		$order->ProjectName = $_POST["ProjectName"];
+		$order->Notes = $_POST["Notes"];
+		if(count($filesinfo) > 0)
+			$order->Status = "Pending File Upload";
+		else
+			$order->Status = "Awaiting retrieval";
+		$order->ViewOrderKey = uniqidReal();
+		$order->UploadFileKey = uniqidReal();
+		
+		if($order->DueDate == "")
+		{
+			$order->DueDate = "1970-01-01";
+		}
+		
+		$order->OrderId = $OrdersContext->SaveOrder($order);
+		
+		$result->OrderId = $order->OrderId;
+		$result->ViewOrderKey = $order->ViewOrderKey;
+        $result->UploadFileKey = $order->UploadFileKey;
+		
+		foreach($filesinfo as $fileinfo)
+		{
+			$path = "";
+			
+			$OrderFileInformation = new OrderFileUploadInformation();
+			$OrderFileInformation->OrderId = $order->OrderId;
+			
+			$OrderFileInformation->FileId = $OrdersContext->SaveOrderFileInformationBeforeUpload($order, 0, $fileinfo->FileName, $fileinfo->FileName, $fileinfo->Length, $fileinfo->ContentType);
+			$path = DATA_FILEPATH . "/" .  $OrderFileInformation->FileId;
+			// Update path which required file id to build
+			$OrdersContext->SaveOrderFileInformationBeforeUpload($order, $OrderFileInformation->FileId, $fileinfo->FileName, $path, $fileinfo->Length, $fileinfo->ContentType, 0);
+			
+			$OrderFileInformation->FileName = $fileinfo->FileName;
+			$OrderFileInformation->Length = $fileinfo->Length;
+			$OrderFileInformation->Written = 0;
+			$OrderFileInformation->ContentType = $fileinfo->ContentType;
+			
+			$result->FileInformation[] = $OrderFileInformation;
+		}
+		
+        //public $FileInformation = array();
+		
+		//if($order->OrderId > 0)
+		{
+			setcookie("name", $order->ContactName);
+			setcookie("phonenumber", $order->PhoneNumber);
+			setcookie("emailaddress", $order->EmailAddress);
+			setcookie("companyname", $order->CompanyName);
+			setcookie("address1", $order->Address1);
+			setcookie("address2", $order->Address2);
+			setcookie("city", $order->City);
+			setcookie("state", $order->State);
+			setcookie("zipcode", $order->ZipCode);
+		}
+				
+		die(json_encode($result));
+	}
+?>
 <?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); ?>
 <style>
     /* Font family for the entire body */
@@ -142,18 +257,18 @@
             <div class="form-row">
                 <div>
                     <h2>Contact Info</h2>
-                    <input type="text" id="Name" name="Name" placeholder="Your name.." value="<?php print (isset($_COOKIE["name"])? $_COOKIE["name"] : ""); ?>">
-                    <input type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number.." value="<?php print (isset($_COOKIE["phonenumber"])? $_COOKIE["phonenumber"] : ""); ?>">
-                    <input type="text" id="EmailAddress" name="EmailAddress" placeholder="Your email.." value="<?php print (isset($_COOKIE["emailaddress"])? $_COOKIE["emailaddress"] : ""); ?>">
+                    <input type="text" id="Name" name="Name" placeholder="Your name.." required="required" value="<?php print (isset($_COOKIE["name"])? $_COOKIE["name"] : ""); ?>">
+                    <input type="text" id="PhoneNumber" name="PhoneNumber" placeholder="Your phone number.." required="required" value="<?php print (isset($_COOKIE["phonenumber"])? $_COOKIE["phonenumber"] : ""); ?>">
+                    <input type="text" id="EmailAddress" name="EmailAddress" placeholder="Your email.." required="required" value="<?php print (isset($_COOKIE["emailaddress"])? $_COOKIE["emailaddress"] : ""); ?>">
                 </div>
                 <div>
                     <h2>Company Info</h2>
-                    <input type="text" id="CompanyName" name="CompanyName" placeholder="Company name.." value="<?php print (isset($_COOKIE["companyname"])? $_COOKIE["companyname"] : ""); ?>">
-                    <input type="text" id="Address1" name="Address1" placeholder="Address 1.." value="<?php print (isset($_COOKIE["address1"])? $_COOKIE["address1"] : ""); ?>">
+                    <input type="text" id="CompanyName" name="CompanyName" placeholder="Company name.." required="required" value="<?php print (isset($_COOKIE["companyname"])? $_COOKIE["companyname"] : ""); ?>">
+                    <input type="text" id="Address1" name="Address1" placeholder="Address 1.." required="required" value="<?php print (isset($_COOKIE["address1"])? $_COOKIE["address1"] : ""); ?>">
                     <input type="text" id="Address2" name="Address2" placeholder="Address 2.." value="<?php print (isset($_COOKIE["address2"])? $_COOKIE["address2"] : ""); ?>">
-                    <input type="text" id="City" name="City" placeholder="City.." value="<?php print (isset($_COOKIE["city"])? $_COOKIE["city"] : ""); ?>">
-                    <input type="text" id="State" name="State" placeholder="State.." value="<?php print (isset($_COOKIE["state"])? $_COOKIE["state"] : ""); ?>">
-                    <input type="text" id="ZipCode" name="ZipCode" placeholder="Zip.." value="<?php print (isset($_COOKIE["zipcode"])? $_COOKIE["zipcode"] : ""); ?>">
+                    <input type="text" id="City" name="City" placeholder="City.." required="required" value="<?php print (isset($_COOKIE["city"])? $_COOKIE["city"] : ""); ?>">
+                    <input type="text" id="State" name="State" placeholder="State.." required="required" value="<?php print (isset($_COOKIE["state"])? $_COOKIE["state"] : ""); ?>">
+                    <input type="text" id="ZipCode" name="ZipCode" placeholder="Zip.." required="required" value="<?php print (isset($_COOKIE["zipcode"])? $_COOKIE["zipcode"] : ""); ?>">
                 </div>
             </div>
             <div class="form-row">
@@ -201,7 +316,7 @@
     // Code to be executed when the document is ready
     $(document).ready(function () {
         // Configure form validation using the jQuery Validation plugin
-        $('form').validate({
+        $('#OrderForm').validate({
             // Rules for each form field
             rules: {
                 Name: {
@@ -324,7 +439,7 @@
 </script>
 <script>
     // Define global variables to store file information and attachments
-    var fileInformation = [];
+    var FileInformation = [];
     var attachments = [];
     var fileCount = 0;
     var processedFileCount = 0;
@@ -332,6 +447,8 @@
     // Function to handle the form submission event
     function submitForm(event) {
         event.preventDefault(); // Prevent the default form submission
+		//if(!$('#OrderForm').valid())
+		//	return;
         EnableDisableForm(false);
         UpdateStatus("Initializing...", "0%", "0%");
         ShowHideStatus(true);
@@ -353,7 +470,7 @@
         }
 
         // Clear the file information and attachments arrays and reset the file counters
-        fileInformation = [];
+        FileInformation = [];
         attachments = [];
         fileCount = 0;
         processedFileCount = 0;
@@ -367,9 +484,9 @@
         // Asynchronous function to handle a file
         async function handleFile(file, index) {
             await file.file(function (item) {
-                // Create a new file information object and add it to the fileInformation array
+                // Create a new file information object and add it to the FileInformation array
                 var onefile = new CreateFileInformation(item.name, item.size, item.type);
-                fileInformation[index] = onefile;
+                FileInformation[index] = onefile;
                 // Add the file item to the attachments array
                 attachments[index] = item;
             });
@@ -393,16 +510,17 @@
                 // If the file is not a File object, increment the fileCount, create a file information object, and add it to the arrays
                 fileCount++;
                 var onefile = new CreateFileInformation(file.name, file.size, file.type);
-                fileInformation.push(onefile);
+                FileInformation.push(onefile);
                 attachments.push(file);
+				handleProcessedFile(file);
             }
         });
 
         // Function to check if all files have been processed, and submit the form if ready
         function CheckFilesHandled() {
-            if (processedFileCount >= fileCount) {
-                // Convert the fileInformation array to a JSON string and append it to the new form
-                var jsonString = JSON.stringify(fileInformation);
+			if (processedFileCount >= fileCount) {
+                // Convert the FileInformation array to a JSON string and append it to the new form
+                var jsonString = JSON.stringify(FileInformation);
                 newForm.append("FileInformation", jsonString);
                 UpdateStatus("Submitting order...", "0%", "0%");
                 // Create a new XMLHttpRequest to submit the form data
@@ -458,20 +576,27 @@
                 // Display a status message indicating the start of the file upload
                 UpdateStatus("Starting file upload...", "0%", "0%");
             }
-
+			if (Upload.FileIndex >= Upload.OrderInsertResults.FileInformation.length) {
+				// Update status to show 100% progress for all files
+				UpdateStatus("No files to upload.", "100%", "100%");
+				// Redirect to the order successful page after a delay
+				setTimeout(() => {
+					window.location.href = "/fileupload/OrderSuccessful.php?id=" + Upload.OrderInsertResults.OrderId + "&viewOrderKey=" + Upload.OrderInsertResults.ViewOrderKey;
+				}, 1000);
+			}
             // Create a new FormData object to store data for the XMLHttpRequest
             var formData = new FormData();
             // Append relevant data to the form data
-            formData.append('OrderId', Upload.OrderInsertResults.orderId);
-            formData.append('UploadFileKey', Upload.OrderInsertResults.uploadFileKey);
-            formData.append('FileId', Upload.OrderInsertResults.fileInformation[Upload.FileIndex].fileId);
+            formData.append('OrderId', Upload.OrderInsertResults.OrderId);
+            formData.append('UploadFileKey', Upload.OrderInsertResults.UploadFileKey);
+            formData.append('FileId', Upload.OrderInsertResults.FileInformation[Upload.FileIndex].FileId);
 
             // Set the action and method for the form data
-            formData.action = "/UploadFile";
+            formData.action = "/fileupload/UploadFile.php";
             formData.method = "POST";
 
             // Get the file data from the OrderInsertResults object
-            var file = OrderInsertResults.fileInformation[Upload.FileIndex].Blob;
+            var file = OrderInsertResults.FileInformation[Upload.FileIndex].Blob;
 
             // Append a chunk of the file to the form data
             formData.append("file[]", file.slice(Upload.WriteIndex, Upload.WriteIndex + Upload.ChunkSize), file.name);
@@ -494,29 +619,29 @@
                         var wasWriteIndex = Upload.WriteIndex;
                         // Update the write index to point to the next chunk
                         Upload.WriteIndex = Upload.WriteIndex + Upload.ChunkSize;
-
+						//alert(ChunkUploadRequest.responseText);
                         // Check if the entire file has been uploaded
                         if (Upload.WriteIndex > file.size) {
                             // Move to the next file
                             Upload.FileIndex++;
                             // Update status to show progress for the next file
-                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, "0%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
+                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.FileInformation.length, "0%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
                             // Reset the write index to 0 for the next file
                             Upload.WriteIndex = 0;
                         }
                         else {
                             // Update the total bytes written and display progress for the current file
-                            Upload.TotalWritten += Math.min(Upload.ChunkSize, OrderInsertResults.fileInformation[Upload.FileIndex].Blob.size - wasWriteIndex);
-                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.fileInformation.length, Math.floor(Upload.WriteIndex / file.size * 100) + "%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
+                            Upload.TotalWritten += Math.min(Upload.ChunkSize, OrderInsertResults.FileInformation[Upload.FileIndex].Blob.size - wasWriteIndex);
+                            UpdateStatus("File " + (Upload.FileIndex + 1) + "/" + Upload.OrderInsertResults.FileInformation.length, Math.floor(Upload.WriteIndex / file.size * 100) + "%", Math.floor(Upload.TotalWritten / Upload.TotalLength * 100) + "%");
                         }
 
                         // Check if all files have been uploaded
-                        if (Upload.FileIndex >= Upload.OrderInsertResults.fileInformation.length) {
+                        if (Upload.FileIndex >= Upload.OrderInsertResults.FileInformation.length) {
                             // Update status to show 100% progress for all files
-                            UpdateStatus("File " + (Upload.FileIndex) + "/" + Upload.OrderInsertResults.fileInformation.length, "100%", "100%");
+                            UpdateStatus("File " + (Upload.FileIndex) + "/" + Upload.OrderInsertResults.FileInformation.length, "100%", "100%");
                             // Redirect to the order successful page after a delay
                             setTimeout(() => {
-                                window.location.href = "/OrderSuccessful?id=" + Upload.OrderInsertResults.orderId + "&viewOrderGuid=" + Upload.OrderInsertResults.viewOrderKey;
+                                window.location.href = "/fileupload/OrderSuccessful.php?id=" + Upload.OrderInsertResults.OrderId + "&viewOrderKey=" + Upload.OrderInsertResults.ViewOrderKey;
                             }, 1000);
                         }
                         else {
@@ -543,20 +668,23 @@
     // Function to handle successful file uploads and initialize the FileUpload instance
     function HandleAwaitingFiles(ajax, attachments) {
         var response = ajax.responseText;
-        var jsonObject = JSON.parse(response);
-        var totalLength = 0;
+		var jsonObject = JSON.parse(response);
+		var totalLength = 0;
 
-        // Assign the file Blob objects to the FileInformation objects in the response
-        for (var i = 0; i < jsonObject.fileInformation.length; i++) {
-            jsonObject.fileInformation[i].Blob = attachments[i];
-            totalLength += attachments[i].size;
-        }
-
+		if(jsonObject.FileInformation != undefined)
+		{
+		// Assign the file Blob objects to the FileInformation objects in the response
+			for (var i = 0; i < jsonObject.FileInformation.length; i++) {
+				jsonObject.FileInformation[i].Blob = attachments[i];
+				totalLength += attachments[i].size;
+			}
+		}
         // Create a new FileUpload instance and set the total length
         upload = new FileUpload(jsonObject);
         upload.TotalLength = totalLength;
 
         // Start sending files using the SendFiles function of the FileUpload instance
+		
         upload.SendFiles(upload);
     }
 

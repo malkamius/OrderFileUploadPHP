@@ -101,7 +101,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         ?>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <input type="hidden" name="redirect" value="<?php echo (isset($_REQUEST["redirect"]))? htmlspecialchars($_REQUEST["redirect"]) : ""; ?>">
+            <input type="hidden" name="redirect" value="<?php echo (isset($_REQUEST["redirect"]))? htmlspecialchars($_REQUEST["redirect"]) : "/fileupload/index.php"; ?>">
             <div class="form-group">
                 <label>Email Address</label>
                 <input type="text" name="emailaddress" class="form-control <?php echo (!empty($emailaddress_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $emailaddress; ?>">

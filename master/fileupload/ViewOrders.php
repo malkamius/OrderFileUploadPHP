@@ -26,9 +26,9 @@ else
     foreach($orders as $order)
     {
         echo "<tr>";
-        echo "<td>" . $order->OrderId . "</td>";
-        echo "<td>" . $order->ContactName . "</td>";
-        echo "<td><a href='/fileupload/ViewOrder.php?id=" . $order->OrderId . "' class='button'>View</a></td>";
+        echo "<td>" . htmlspecialchars($order->OrderId) . "</td>";
+        echo "<td>" . htmlspecialchars($order->ContactName) . "</td>";
+        echo "<td><a href='/fileupload/ViewOrder.php?id=" . htmlspecialchars($order->OrderId) . "' class='button'>View</a></td>";
         echo "</tr>";
     }
     echo "</table>";

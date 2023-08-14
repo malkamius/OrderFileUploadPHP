@@ -1,4 +1,5 @@
 <?php
+require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/config.php');
 class UserSignInManager
 {
     public function IsSignedIn()

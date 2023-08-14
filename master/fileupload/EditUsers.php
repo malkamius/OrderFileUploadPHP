@@ -66,9 +66,9 @@ else
     foreach($users as $user)
     {
         echo "<tr>";
-        echo "<td>" . $user["userid"] . "</td>";
-        echo "<td>" . $user["email"] . "</td>";
-        echo "<td><a href='/fileupload/EditUser.php?id=" . $user["userid"] . "' class='button'>Edit</a></td>";
+        echo "<td>" . htmlspecialchars($user["userid"]) . "</td>";
+        echo "<td>" . htmlspecialchars($user["email"]) . "</td>";
+        echo "<td><a href='/fileupload/EditUser.php?id=" . htmlspecialchars($user["userid"]) . "' class='button'>Edit</a></td>";
         echo "</tr>";
     }
     echo "</table>";
