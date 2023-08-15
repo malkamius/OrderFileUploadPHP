@@ -635,7 +635,7 @@ use PHPMailer\PHPMailer\SMTP;
         this.FileIndex = 0;
         this.WriteIndex = 0;
         // Set the chunk size to 10,240,000 bytes (10 MB)
-        this.ChunkSize = 10240000;
+        this.ChunkSize = 1024000;
         // Initialize variables to track the total bytes written and total file length
         this.TotalWritten = 0;
         this.TotalLength = 0;
@@ -658,10 +658,10 @@ use PHPMailer\PHPMailer\SMTP;
             // Create a new FormData object to store data for the XMLHttpRequest
             var formData = new FormData();
             // Append relevant data to the form data
-            formData.append('OrderId', Upload.OrderInsertResults.OrderId);
+			formData.append('OrderId', Upload.OrderInsertResults.OrderId);
             formData.append('UploadFileKey', Upload.OrderInsertResults.UploadFileKey);
             formData.append('FileId', Upload.OrderInsertResults.FileInformation[Upload.FileIndex].FileId);
-
+			
             // Set the action and method for the form data
             formData.action = "/fileupload/UploadFile.php";
             formData.method = "POST";
@@ -671,6 +671,7 @@ use PHPMailer\PHPMailer\SMTP;
 
             // Append a chunk of the file to the form data
             formData.append("file[]", file.slice(Upload.WriteIndex, Upload.WriteIndex + Upload.ChunkSize), file.name);
+            
 
             // Create a new XMLHttpRequest object for uploading the chunk
             var ChunkUploadRequest = new XMLHttpRequest();
@@ -678,6 +679,7 @@ use PHPMailer\PHPMailer\SMTP;
             // Open the XMLHttpRequest with the specified method and action
             ChunkUploadRequest.open(formData.method, formData.action, true);
             // Send the form data as the payload of the XMLHttpRequest
+			
             ChunkUploadRequest.send(formData);
 
             // Define an event handler for the XMLHttpRequest's state change
