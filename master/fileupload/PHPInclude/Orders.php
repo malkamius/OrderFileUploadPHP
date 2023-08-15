@@ -99,7 +99,7 @@ class OrdersDbContext
 					   date_created,
 					   (SELECT SUM(files.length = files.written_bytes) = count(1) as FilesComplete FROM files WHERE files.order_id = orders.order_id) as FilesComplete,
 					   (SELECT COUNT(1) FROM files WHERE files.order_id = orders.order_id) as FileCount
-				FROM orders LIMIT " . $startindex . ", " . $count;
+				FROM orders ORDER BY order_id DESC LIMIT " . $startindex . ", " . $count;
 
         if($stmt = mysqli_prepare($this->OrdersDBConnection, $sql)){
             if($stmt->execute()){
