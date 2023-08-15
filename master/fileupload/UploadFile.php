@@ -33,8 +33,15 @@
 					fwrite($storedfile, $bytes, 4096);
 				}
 				
+				fflush($storedfile);
+				
+				fclose($storedfile);
+				fclose($tempfile);
+				
+				unlink($tempname);
+				
 				$chunkupload = new ChunkUploadInformation();
-				$chunkupload->WrittenBytes = ftell($storedfile);
+				$chunkupload->WrittenBytes = filesize($file->StoredFilePath);
 				
 				$OrdersContext->SaveOrderFileInformationWrittenBytes($file->FileId, $chunkupload->WrittenBytes);
 				if($OrdersContext->GetOrderFilesComplete($file->OrderId))
@@ -43,10 +50,6 @@
 					$OrdersContext->SaveOrderStatus($order);
 				}
 				
-				fclose($storedfile);
-				fclose($tempfile);
-				
-				unlink($tempname);
 				print(json_encode($chunkupload));
 			}
 			else

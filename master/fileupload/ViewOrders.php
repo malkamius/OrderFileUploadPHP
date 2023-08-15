@@ -22,7 +22,7 @@ if(count($orders) == 0)
 else
 {
     echo "<table class='styled-table'>";
-    echo "<thead><tr><th>Id</th><th>Contact</th><th>Status</th><th># files</th><th>Created</th><th>Due</th><th></th></tr></thead>";
+    echo "<thead><tr><th>Id</th><th>Contact</th><th>Status</th><th># files</th><th>Created</th><th>Due</th><th>Status</th><th></th></tr></thead>";
     foreach($orders as $order)
     {
         echo "<tr>";
@@ -32,6 +32,7 @@ else
 		echo "<td>" . htmlspecialchars($order->FileCount) . "</td>";
 		echo "<td>" . htmlspecialchars($order->DateCreated) . "</td>";
 		echo "<td>" . htmlspecialchars($order->DueDate) . " " . htmlspecialchars($order->DueTime) . "</td>";
+		echo "<td>" . htmlspecialchars($order->Status) . "</td>";
         echo "<td><a href='/fileupload/ViewOrder.php?id=" . htmlspecialchars($order->OrderId) . "' class='button'>View</a></td>";
         echo "</tr>";
     }
