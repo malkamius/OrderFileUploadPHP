@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 // Include config file
-require_once $_SERVER['DOCUMENT_ROOT'] . "/fileupload/header.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/fileupload/Layout/header.php";
 
 // Define variables and initialize with empty values
 $emailaddress = "";
@@ -60,20 +60,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     $mail = new PHPMailer(true);
 
                     try {
+
                         //Server settings
-                        $mail->SMTPDebug = 0;                      //Enable verbose debug output
+                        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+						$mail->SMTPDebug = 0;
                         $mail->isSMTP();                                            //Send using SMTP
                         $mail->Host       = SMTP_SERVER;                     //Set the SMTP server to send through
-                        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+						$mail->HostName = "kbs-cloud.com";
+                        //$mail->AuthType = 'LOGIN';
+						$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
                         $mail->Username   = SMTP_USERNAME;                     //SMTP username
                         $mail->Password   = SMTP_PASSWORD;                               //SMTP password
-                        //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                        $mail->SMTPSecure = 0;//PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
                         $mail->Port       = 25;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
                         //Recipients
-                        $mail->setFrom(SMTP_FROMEMAIL, 'LiveOrder');
+                        $mail->setFrom(SMTP_FROMEMAIL);
                         $mail->addAddress($emailaddress);     //Add a recipient
-                        $mail->addReplyTo(SMTP_FROMEMAIL, 'LiveOrder');
+                        $mail->addReplyTo(SMTP_FROMEMAIL);
 
                         //Content
                         $mail->isHTML(true);                                  //Set email format to HTML
@@ -125,4 +129,4 @@ if($printform)
     </div>    
 <?php
 }
-    require_once("../footer.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

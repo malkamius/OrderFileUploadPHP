@@ -2,7 +2,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
-require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/PHPInclude/config.php');
 require_once($_SERVER['DOCUMENT_ROOT'] .'/PHPMailer/src/PHPMailer.php');
 require_once($_SERVER['DOCUMENT_ROOT'] .'/PHPMailer/src/SMTP.php');
 require_once($_SERVER['DOCUMENT_ROOT'] .'/PHPMailer/src/Exception.php');

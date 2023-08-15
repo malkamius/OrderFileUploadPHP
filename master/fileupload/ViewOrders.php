@@ -1,7 +1,7 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); 
 $SignInManager->Authorize(array("ADMINISTRATOR", "BROWSE"));
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Orders.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/Orders.php"); 
 ?>
 <?php 
 global $OrdersContext;
@@ -22,12 +22,16 @@ if(count($orders) == 0)
 else
 {
     echo "<table class='styled-table'>";
-    echo "<thead><tr><th>Id</th><th>Contact</th><th></th></tr></thead>";
+    echo "<thead><tr><th>Id</th><th>Contact</th><th>Status</th><th># files</th><th>Created</th><th>Due</th><th></th></tr></thead>";
     foreach($orders as $order)
     {
         echo "<tr>";
         echo "<td>" . htmlspecialchars($order->OrderId) . "</td>";
         echo "<td>" . htmlspecialchars($order->ContactName) . "</td>";
+		echo "<td>" . htmlspecialchars($order->Status) . "</td>";
+		echo "<td>" . htmlspecialchars($order->FileCount) . "</td>";
+		echo "<td>" . htmlspecialchars($order->DateCreated) . "</td>";
+		echo "<td>" . htmlspecialchars($order->DueDate) . " " . htmlspecialchars($order->DueTime) . "</td>";
         echo "<td><a href='/fileupload/ViewOrder.php?id=" . htmlspecialchars($order->OrderId) . "' class='button'>View</a></td>";
         echo "</tr>";
     }
@@ -41,4 +45,4 @@ else
     }
 }
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="/fileupload/css/site.css" />
 </head>
 <?php
-    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/InitDBAndSMTP.php");
-    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/SignInManager.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/InitDBAndSMTP.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/SignInManager.php");
  ?>
 <body>
     <header>

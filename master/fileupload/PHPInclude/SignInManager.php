@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/PHPInclude/config.php');
 class UserSignInManager
 {
     public function IsSignedIn()
@@ -35,7 +35,7 @@ class UserSignInManager
 class UserData
 {
     public $UserId = 0;
-    public $UserName = "";
+    public $EmailAddress = "";
 
     public function IsInRole($role)
     {
@@ -68,11 +68,44 @@ class UserData
         }
         return false;
     }
+	
+	public function IsInRoleAny($roles)
+    {
+        global $link;
+        $sql = "SELECT roles.role_name FROM roles JOIN user_roles ON user_roles.role_id = roles.role_id JOIN users ON user_roles.user_id = users.id WHERE users.id = ?;";
+        if($stmt = mysqli_prepare($link, $sql)){
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "s", $param_id);
+            
+            // Set parameters
+            $param_id = $this->UserId;
+            
+            // Attempt to execute the prepared statement
+            if($stmt->execute()){
+                // Store result
+                $stmt->bind_result($role_name);
+                
+                while ($stmt->fetch()) {
+					foreach($roles as $role)
+						if($role_name == $role)
+							return true;
+                }
+                
+            } 
+            else {
+                return false;
+            }
+
+            // Close statement
+            $stmt->close();
+        }
+        return false;
+    }
 
     public function __construct($UserId, $EmailAddress)
     {
         $this->UserId = $UserId;
-        $this->UserName = $EmailAddress;
+        $this->EmailAddress = $EmailAddress;
     }
 
 }
@@ -82,12 +115,34 @@ class UserManager
 
     public function GetUserName($user)
     {
-        return $user->UserName;
+        return $user->EmailAddress;
     }
+	
+	public function GetUsers()
+	{
+		global $link;
+		$results = array();
+		$sql = "SELECT id, emailaddress
+				FROM users WHERE verified != 0;";
 
+        if($stmt = mysqli_prepare($link, $sql)){
+            if($stmt->execute()){
+                $stmt->bind_result($userid, $emailaddress);
+                
+                while ($stmt->fetch()) {
+                    $result = new UserData($userid, $emailaddress);
+					$results[] = $result;
+                }
+                
+            } 
+            $stmt->close();
+        }
+		
+		return $results;
+	}
 }
 session_start();
 $SignInManager = new UserSignInManager;
-$UserManager= new UserSignInManager;
+$UserManager= new UserManager;
 $User = new UserData(isset($_SESSION["id"])? $_SESSION["id"] : "", isset($_SESSION["emailaddress"])? $_SESSION["emailaddress"] : "");
 

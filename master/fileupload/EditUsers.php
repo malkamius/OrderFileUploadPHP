@@ -1,5 +1,5 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); 
 $SignInManager->Authorize(array("ADMINISTRATOR"));
 ?>
 <?php 
@@ -81,4 +81,4 @@ else
     }
 }
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

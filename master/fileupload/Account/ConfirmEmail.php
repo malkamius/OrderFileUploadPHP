@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php");
     
     if(!isset($_GET["verification_token"]))
     {
@@ -33,4 +33,4 @@
         }
     }
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

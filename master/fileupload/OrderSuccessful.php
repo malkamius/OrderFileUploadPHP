@@ -1,6 +1,6 @@
 <?php
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); 
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Orders.php"); 
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); 
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/Orders.php"); 
 
 	if(!isset($_REQUEST["id"]) || !isset($_REQUEST["viewOrderKey"]))
 	{
@@ -22,4 +22,4 @@
 		}	
 	}
 	
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php"); 
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php"); 

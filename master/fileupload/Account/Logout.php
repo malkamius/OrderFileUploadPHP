@@ -1,4 +1,4 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); ?>
 <?php
 // Initialize the session
 session_start();
@@ -13,4 +13,4 @@ session_destroy();
 header("Location: /fileupload/index.php");
 exit;
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

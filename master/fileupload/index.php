@@ -1,8 +1,12 @@
 <?php 
-    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/InitDBAndSMTP.php");
-    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/SignInManager.php");
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Orders.php"); 
-	
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/InitDBAndSMTP.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/SignInManager.php");
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/Orders.php"); 
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/OrderFormat.php"); 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
 	class OrderFileUploadInformation
     {
         public $OrderId = 0;
@@ -109,11 +113,78 @@
 			setcookie("state", $order->State);
 			setcookie("zipcode", $order->ZipCode);
 		}
+				$mail = new PHPMailer(true);
+
+                //try {
+                    //Server settings
+                    $mail->SMTPDebug = 0;                      //Enable verbose debug output
+                    $mail->isSMTP();                                            //Send using SMTP
+                    $mail->Host       = SMTP_SERVER;                     //Set the SMTP server to send through
+                    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+                    $mail->Username   = SMTP_USERNAME;                     //SMTP username
+                    $mail->Password   = SMTP_PASSWORD;                               //SMTP password
+                    //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                    $mail->Port       = 25;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                    //Recipients
+                    $mail->setFrom(SMTP_FROMEMAIL, 'FileUpload');
+                    $mail->addAddress($order->EmailAddress);     //Add a recipient
+                    $mail->addReplyTo(SMTP_FROMEMAIL, 'FileUpload');
+
+                    //Content
+                    $mail->isHTML(true);                                  //Set email format to HTML
+                    $mail->Subject = 'Order Placed';
+                    $mail->Body    = FormatOrderAsHTML($order, true, true);
+                    $mail->AltBody = 'Your order has been received.';
+
+                    $mail->send();
+                    //echo 'Message has been sent';
+                //} 
+				//catch (Exception $e) 
+				//{
+                //}
 				
+				$users = $UserManager->GetUsers();
+				foreach($users as $user)
+				{
+					if($user->IsInRoleAny(array("ADMINISTRATOR", "BROWSE")))
+					{
+						$mail = new PHPMailer(true);
+
+						//try {
+							//Server settings
+							$mail->SMTPDebug = 0;                      //Enable verbose debug output
+							$mail->isSMTP();                                            //Send using SMTP
+							$mail->Host       = SMTP_SERVER;                     //Set the SMTP server to send through
+							$mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+							$mail->Username   = SMTP_USERNAME;                     //SMTP username
+							$mail->Password   = SMTP_PASSWORD;                               //SMTP password
+							//$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+							$mail->Port       = 25;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+							//Recipients
+							$mail->setFrom(SMTP_FROMEMAIL, 'FileUpload');
+							$mail->addAddress($user->EmailAddress);     //Add a recipient
+							$mail->addReplyTo(SMTP_FROMEMAIL, 'FileUpload');
+
+							//Content
+							$mail->isHTML(true);                                  //Set email format to HTML
+							$mail->Subject = 'A New Order Has Been Placed';
+							$mail->Body    = FormatOrderAsHTML($order, false, true);
+							$mail->AltBody = 'A new order has been received.';
+
+							$mail->send();
+							//echo 'Message has been sent';
+						//} 
+						//catch (Exception $e) 
+						//{
+						//}
+					}
+				}
 		die(json_encode($result));
 	}
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); ?>
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); ?>
 <style>
     /* Font family for the entire body */
     body {
@@ -274,8 +345,8 @@
             <div class="form-row">
                 <div>
                     <h2>Time Constraints</h2>
-                    <input type="date" id="DateDue" name="DateDue">
-                    <input type="time" id="LatestTimeDue" name="LatestTimeDue">
+                    <input type="date" id="DateDue" name="DateDue" >
+                    <input type="time" id="LatestTimeDue" name="LatestTimeDue" >
                 </div>
                 <div>
                     <h2>Accounting Details</h2>
@@ -350,11 +421,11 @@
                     number: true // Zip code must be a numeric value
                 },
                 DueDate: {
-                    required: false, // Due date field is optional (not required)
+                    required: true, // Due date field is optional (not required)
                     date: true // Due date must be in a valid date format
                 },
                 LatestDueTime: {
-                    required: false, // Latest due time field is optional (not required)
+                    required: true, // Latest due time field is optional (not required)
                 },
                 ProjectNumber: {
                     required: false, // Project number field is optional (not required)
@@ -447,8 +518,8 @@
     // Function to handle the form submission event
     function submitForm(event) {
         event.preventDefault(); // Prevent the default form submission
-		//if(!$('#OrderForm').valid())
-		//	return;
+		if(!$('#OrderForm').valid())
+			return;
         EnableDisableForm(false);
         UpdateStatus("Initializing...", "0%", "0%");
         ShowHideStatus(true);
@@ -668,6 +739,7 @@
     // Function to handle successful file uploads and initialize the FileUpload instance
     function HandleAwaitingFiles(ajax, attachments) {
         var response = ajax.responseText;
+		//alert(response);
 		var jsonObject = JSON.parse(response);
 		var totalLength = 0;
 
@@ -793,4 +865,4 @@
     }
 </script>
 <?php 
-    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+    require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

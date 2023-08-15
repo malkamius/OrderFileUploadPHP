@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/PHPInclude/config.php');
 class Order
 {
 	public $OrderId = 0;
@@ -26,6 +26,7 @@ class Order
 	public $UploadFileKey = "";
 	public $DateCreated = "";
 	public $FilesComplete = "";
+	public $FileCount = 0;
 	
 	function GetXml()
 	{
@@ -96,7 +97,8 @@ class OrdersDbContext
 					   duedate, duetime, project_number, purchase_order_number,
 					   project_name, notes, status, view_order_key, upload_file_key,
 					   date_created,
-					   (SELECT SUM(files.length = files.written_bytes) = count(1) as FilesComplete FROM files WHERE files.order_id = orders.order_id) as FilesComplete
+					   (SELECT SUM(files.length = files.written_bytes) = count(1) as FilesComplete FROM files WHERE files.order_id = orders.order_id) as FilesComplete,
+					   (SELECT COUNT(1) FROM files WHERE files.order_id = orders.order_id) as FileCount
 				FROM orders LIMIT " . $startindex . ", " . $count;
 
         if($stmt = mysqli_prepare($this->OrdersDBConnection, $sql)){
@@ -106,13 +108,13 @@ class OrdersDbContext
 				$company_name, $address1, $address2, $city, $state, $zipcode,
 				$duedate, $duetime,
 				$project_number, $purchase_order_number, $project_name, 
-				$notes, $status, $view_order_key, $upload_file_key, $date_created, $files_complete);
+				$notes, $status, $view_order_key, $upload_file_key, $date_created, $files_complete, $files_count);
                 
                 while ($stmt->fetch()) {
                     $result = new Order();
 					$result->OrderId = $order_id;
 					$result->ContactName = $contact_name;
-					$result->PhoneNumber = $phone_number;
+					$result->PhoneNumber = preg_replace('~.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', '($1) $2-$3', $phone_number);
 					$result->EmailAddress = $email_address;
 					 
 					$result->CompanyName = $company_name;
@@ -134,6 +136,7 @@ class OrdersDbContext
 					$result->UploadFileKey = $upload_file_key;
 					$result->DateCreated = $date_created;
 					$result->FilesComplete = $files_complete != 0;
+					$result->FileCount = $files_count;
 					$results[] = $result;
                 }
                 
@@ -152,7 +155,8 @@ class OrdersDbContext
 					   duedate, duetime, project_number, purchase_order_number,
 					   project_name, notes, status, view_order_key, upload_file_key,
 					   date_created,
-					   (SELECT SUM(files.length = files.written_bytes) = count(1) as FilesComplete FROM files WHERE files.order_id = orders.order_id) as FilesComplete
+					   (SELECT SUM(files.length = files.written_bytes) = count(1) as FilesComplete FROM files WHERE files.order_id = orders.order_id) as FilesComplete,
+					   (SELECT COUNT(1) FROM files WHERE files.order_id = orders.order_id) as FileCount
 				FROM orders WHERE order_id = ?;";
 
         if($stmt = mysqli_prepare($this->OrdersDBConnection, $sql)){
@@ -170,12 +174,12 @@ class OrdersDbContext
 				$company_name, $address1, $address2, $city, $state, $zipcode,
 				$duedate, $duetime,
 				$project_number, $purchase_order_number, $project_name, 
-				$notes, $status, $view_order_key, $upload_file_key, $date_created, $files_complete);
+				$notes, $status, $view_order_key, $upload_file_key, $date_created, $files_complete, $files_count);
                 
                 if($stmt->fetch()) {
 					$result->OrderId = $order_id;
 					$result->ContactName = $contact_name;
-					$result->PhoneNumber = $phone_number;
+					$result->PhoneNumber = preg_replace('~.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', '($1) $2-$3', $phone_number);
 					$result->EmailAddress = $email_address;
 					 
 					$result->CompanyName = $company_name;
@@ -197,6 +201,7 @@ class OrdersDbContext
 					$result->UploadFileKey = $upload_file_key;
 					$result->DateCreated = $date_created;
 					$result->FilesComplete = $files_complete != 0;
+					$result->FileCount = $files_count;
                 }
                 
             } 

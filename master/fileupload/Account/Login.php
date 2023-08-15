@@ -1,5 +1,5 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php");
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php");
 // Define variables and initialize with empty values
 $emailaddress = $password = "";
 $emailaddress_err = $password_err = $login_err = "";
@@ -118,4 +118,4 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
         </form>
     </div>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");

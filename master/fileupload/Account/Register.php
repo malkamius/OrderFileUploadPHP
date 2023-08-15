@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 // Include config file
-require_once $_SERVER['DOCUMENT_ROOT'] . "/fileupload/header.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/fileupload/Layout/header.php";
 
 // Define variables and initialize with empty values
 $emailaddress = $password = $confirm_password = "";
@@ -108,7 +108,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                     $mail->isSMTP();                                            //Send using SMTP
                     $mail->Host       = SMTP_SERVER;                     //Set the SMTP server to send through
                     $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-                    $mail->Username   = SMTP_USERNAME;                     //SMTP username
+                    $mail->EmailAddress   = SMTP_USERNAME;                     //SMTP username
                     $mail->Password   = SMTP_PASSWORD;                               //SMTP password
                     //$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
                     $mail->Port       = 25;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`

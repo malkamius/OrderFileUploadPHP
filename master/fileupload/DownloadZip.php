@@ -1,7 +1,7 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/InitDBAndSMTP.php");
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/SignInManager.php");
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Orders.php");
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/InitDBAndSMTP.php");
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/SignInManager.php");
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/PHPInclude/Orders.php");
 if(!isset($_REQUEST["viewOrderKey"]))
 	$SignInManager->Authorize(array("ADMINISTRATOR", "BROWSE"));
 
@@ -24,9 +24,9 @@ else
 
 if($order->OrderId == 0)
 {
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php");
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php");
 	print("Order not found.");
-	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+	require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");
 }
 else
 {

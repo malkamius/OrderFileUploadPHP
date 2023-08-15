@@ -1,5 +1,5 @@
 <?php 
-require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/header.php"); 
+require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); 
 $SignInManager->Authorize(array("ADMINISTRATOR"));
 ?>
 <?php 
@@ -22,7 +22,7 @@ if($stmt = mysqli_prepare($link, $sql)){
         if(!$stmt->fetch())
         {
             echo("User not found.");
-            require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+            require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");
             die();
         }
     } 
@@ -96,4 +96,4 @@ if($stmt = mysqli_prepare($link, $sql)){
     if($userupdated)
         echo "User updated.";
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/footer.php");
+<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");
