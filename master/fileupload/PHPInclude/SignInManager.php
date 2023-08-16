@@ -1,4 +1,5 @@
 <?php
+use Google\Client;
 require_once($_SERVER['DOCUMENT_ROOT'] .'/fileupload/PHPInclude/config.php');
 class UserSignInManager
 {
@@ -142,6 +143,27 @@ class UserManager
 	}
 }
 session_start();
+
+require_once($_SERVER['DOCUMENT_ROOT'] . "/vendor/autoload.php");
+
+$redirect_uri = "https://linux.kbs-cloud.com/fileupload/GoogleLogin.php";
+
+$client = new Google\Client();
+$client->setAuthConfig(GOOGLE_SECRETS);
+$client->setRedirectUri($redirect_uri);
+$client->addScope("https://www.googleapis.com/auth/userinfo.email");
+$client->addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+if(isset($_SESSION["oauth_token"]))
+{
+	$client->setAccessToken($_SESSION["oauth_token"]);
+    if ($client->isAccessTokenExpired()) {
+        unset($_SESSION['oauth_token']);
+		require_once($_SERVER['DOCUMENT_ROOT'] . '/fileupload/Account/Logout.php');
+    }
+	$tokeninfo = $client->verifyIdToken();
+	//echo $tokeninfo['email'];
+}
 $SignInManager = new UserSignInManager;
 $UserManager= new UserManager;
 $User = new UserData(isset($_SESSION["id"])? $_SESSION["id"] : "", isset($_SESSION["emailaddress"])? $_SESSION["emailaddress"] : "");

@@ -11,6 +11,7 @@ define('SMTP_USERNAME', 'FileUpload@kbs-cloud.com');
 define('SMTP_PASSWORD', 'F1leupload');
 define('SMTP_FROMEMAIL', 'FileUpload@kbs-cloud.com');
 define('DATA_FILEPATH', '/var/fileuploaddata');
-
+define('GOOGLE_SECRETS', '/var/google_client_secret.json');
+define('GOOGLE_REDIRECT', 'https://linux.kbs-cloud.com/fileupload/Account/GoogleLogin.php');
 
 ?>

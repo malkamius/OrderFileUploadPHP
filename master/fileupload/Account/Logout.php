@@ -1,8 +1,15 @@
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/header.php"); ?>
 <?php
+require_once("/var/www/html/vendor/autoload.php");
+use Google\Client;
 // Initialize the session
-session_start();
+if(session_id() == '')
+     session_start();
  
+if(isset($_SESSION["oauth_token"]))
+{
+	$client = new Google\Client();
+	$client->revokeToken($_SESSION['oauth_token']);
+}
 // Unset all of the session variables
 $_SESSION = array();
  
@@ -13,4 +20,3 @@ session_destroy();
 header("Location: /fileupload/index.php");
 exit;
 ?>
-<?php require_once($_SERVER['DOCUMENT_ROOT'] ."/fileupload/Layout/footer.php");
